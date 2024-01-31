@@ -28,16 +28,20 @@ pub fn get_files_in_directory(folder_name: &str) -> Result<Vec<File>, &str> {
     };
     let mut files: Vec<File> = Vec::new();
     for folder in folders {
-        let file = folder.expect("msg");
-        let file_name = file.file_name().into_string().expect("msg");
+        let file = folder.expect("Cant Access this Folder");
+        let file_name = file
+            .file_name()
+            .into_string()
+            .expect("Cannot get the File Name to String.");
         let file = File::new(file_name.to_owned());
         files.push(file);
     }
     Ok(files)
 }
 
-pub fn create_backup(files: &Vec<File>) {
-    let backup = SystemFile::create("backup.txt").expect("Could not create File!");
+pub fn create_backup(files: &Vec<File>, directory: &str) {
+    let backup_path = Path::new(directory).join("backup.text");
+    let backup = SystemFile::create(backup_path).expect("Could not create File!");
     let mut backup_writer = BufWriter::new(backup);
 
     for file in files {
@@ -51,27 +55,21 @@ pub fn create_backup(files: &Vec<File>) {
 pub fn change_extension(files: &Vec<File>, directory: &str) -> bool {
     for file in files {
         let path = Path::new(directory).join(file.original.as_str());
-        println!("The Path is {:?}", path);
-        let new_path: Vec<&str> = path.to_str().expect("msg").split_terminator(".").collect();
+        let new_path: Vec<&str> = path
+            .to_str()
+            .expect("Cannot Split the Path")
+            .split_terminator(".")
+            .collect();
         let to_rename = new_path[0].to_owned() + ".cageahahahaha???";
-
-        println!("Change {:?} to {} ", path, to_rename);
-
-        // let file_real = directory.to_string() + file.original.as_str() ;
-        // let file_name : Vec<&str> = file.original.split_terminator('.').collect();
-
-        // println!("{} and {:?}", file_real, file_name[0]);
-        // let new_file_name = file_name + ".cageahahaha";
 
         let result = fs::rename(path, to_rename);
         match result {
             Ok(_) => {
                 println!("Destroyed {:?}", file.original);
+                // return true;
             }
-            Err(_) => {}
+            Err(_) => return false,
         }
-
-        // file.new = filoriginal.as_str();
     }
     true
 }
