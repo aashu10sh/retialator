@@ -68,7 +68,10 @@ pub fn change_extension(files: &Vec<File>, directory: &str) -> bool {
                 println!("Destroyed {:?}", file.original);
                 // return true;
             }
-            Err(_) => return false,
+            Err(error) => {
+                println!("Error is :{}", error);
+                return false;
+            }
         }
     }
     true
